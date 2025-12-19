@@ -1,0 +1,34 @@
+# Database Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: cashvista-db
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: db
+---
+# Backend Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: cashvista-backend
+spec:
+  ports:
+    - port: 8000
+      targetPort: 8000
+  selector:
+    app: backend
+---
+# Frontend Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: cashvista-frontend
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: frontend
