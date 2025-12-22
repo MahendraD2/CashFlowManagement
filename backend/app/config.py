@@ -8,7 +8,8 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "CashVista"
     
     # CORS settings
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8000"]
+    CORS_ORIGINS_STR: str = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:8000,http://cashvista.imcc.com,http://2401037.imcc.com")
+    CORS_ORIGINS: List[str] = [origin.strip() for origin in CORS_ORIGINS_STR.split(",")]
     
     # JWT settings
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-for-development-only")

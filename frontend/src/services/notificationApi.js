@@ -2,7 +2,7 @@ import axios from "axios"
 
 // Create a separate axios instance just for notifications
 const notificationApi = axios.create({
-  baseURL: "http://localhost:8000/api", // Direct connection to backend
+  baseURL: import.meta.env.VITE_API_URL || "/api", // Use env var for production, relative for dev
   headers: {
     "Content-Type": "application/json",
   },

@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cashvista-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        # Replace 'your-namespace' with the one assigned by your college
+        image: nexus.imcc.com/repository/cashvista-backend:v1 
+        ports:
+        - containerPort: 8000
+        env:
+# REPLACE THESE VALUES with the actual ones from your college admin
+        - name: POSTGRES_SERVER
+          value: "college-db-hostname.imcc.com" 
+        - name: POSTGRES_USER
+          value: "your_assigned_username"
+        - name: POSTGRES_PASSWORD
+          value: "your_assigned_password"
+        - name: POSTGRES_DB
+          value: "your_assigned_db_name"  
