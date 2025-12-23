@@ -21,10 +21,10 @@ spec:
         env:
 # REPLACE THESE VALUES with the actual ones from your college admin
         - name: POSTGRES_SERVER
-          value: "college-db-hostname.imcc.com" 
+          value: "postgres-cluster-main-1.cnpg-system.svc.cluster.local" 
         - name: POSTGRES_USER
-          value: "your_assigned_username"
+          value: "mahendradangi"
         - name: POSTGRES_PASSWORD
-          value: "your_assigned_password"
+          value: "mahendra123"
         - name: POSTGRES_DB
-          value: "your_assigned_db_name"  
+          value: "cashvista"  
