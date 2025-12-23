@@ -4,11 +4,10 @@ pipeline {
     environment {
         SONAR_URL = "http://sonarqube.imcc.com/"
         NEXUS_URL = "nexus.imcc.com"
-        // Credentials we created earlier
         SONAR_CREDS = credentials('sonarqube-creds') 
         NEXUS_CREDS = credentials('nexus-creds')
-        // Using the standard Linux path for Docker
-        DOCKER_BIN = "/usr/bin/docker"
+        // Trying the other common path for institutional servers
+        DOCKER_BIN = "/usr/local/bin/docker"
     }
 
     stages {
@@ -29,15 +28,17 @@ pipeline {
         stage('Build & Push to Nexus') {
             steps {
                 script {
+                    // This command will help us find where docker is if the path fails again
+                    sh "whereis docker || true"
+                    sh "which docker || true"
+
                     withCredentials([usernamePassword(credentialsId: 'nexus-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                        // Using full path to avoid "not found" errors
+                        // Using the new path variable
                         sh "echo ${PASS} | ${DOCKER_BIN} login ${NEXUS_URL} -u ${USER} --password-stdin"
                         
-                        // Build Backend & Frontend
                         sh "${DOCKER_BIN} build -t ${NEXUS_URL}/cashvista-backend:v1 ./backend"
                         sh "${DOCKER_BIN} build -t ${NEXUS_URL}/cashvista-frontend:v1 ./frontend"
                         
-                        // Push to Nexus
                         sh "${DOCKER_BIN} push ${NEXUS_URL}/cashvista-backend:v1"
                         sh "${DOCKER_BIN} push ${NEXUS_URL}/cashvista-frontend:v1"
                     }
@@ -47,7 +48,6 @@ pipeline {
 
         stage('Deploy to K8s') {
             steps {
-                // Deploys using the updated manifests for the college DB
                 sh "kubectl apply -f k8s/"
             }
         }
@@ -55,8 +55,8 @@ pipeline {
     
     post {
         always {
-            // Cleanup login session
-            sh "${DOCKER_BIN} logout ${NEXUS_URL}"
+            // Use '|| true' so the logout doesn't crash the whole build if docker isn't found
+            sh "${DOCKER_BIN} logout ${NEXUS_URL} || true"
         }
     }
 }
