@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cashvista-deployment
+  # REPLACE WITH YOUR NAMESPACE (e.g., Roll No)
+  namespace: "2401037" 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cashvista
+  template:
+    metadata:
+      labels:
+        app: cashvista
+    spec:
+      imagePullSecrets:
+        - name: nexus-secret 
+      containers:
+        - name: cashvista
+          # REPLACE <YOUR_PROJECT_NAMESPACE> (e.g., Roll No)
+          image: 127.0.0.1:30085/2401037/cashvista:latest
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 30

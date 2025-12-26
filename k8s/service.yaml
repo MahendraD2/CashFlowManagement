@@ -1,23 +1,14 @@
-# Backend Service
 apiVersion: v1
 kind: Service
 metadata:
-  name: cashvista-backend
+  name: cashvista-service
+  # REPLACE WITH YOUR NAMESPACE
+  namespace: "2401037"
 spec:
-  ports:
-    - port: 8000
-      targetPort: 8000
   selector:
-    app: backend
----
-# Frontend Service
-apiVersion: v1
-kind: Service
-metadata:
-  name: cashvista-frontend
-spec:
+    app: cashvista
   ports:
-    - port: 80
+    - protocol: TCP
+      port: 80
       targetPort: 80
-  selector:
-    app: frontend
+  type: ClusterIP
