@@ -1,7 +1,7 @@
 pipeline {
     agent {
         kubernetes {
-            yaml """
+            yaml '''
 apiVersion: v1
 kind: Pod
 spec:
@@ -10,12 +10,22 @@ spec:
     image: sonarsource/sonar-scanner-cli
     command: ["cat"]
     tty: true
+
   - name: kubectl
     image: bitnami/kubectl:latest
     command: ["cat"]
     tty: true
     securityContext:
       runAsUser: 0
+      readOnlyRootFilesystem: false
+    env:
+    - name: KUBECONFIG
+      value: /kube/config
+    volumeMounts:
+    - name: kubeconfig-secret
+      mountPath: /kube/config
+      subPath: kubeconfig
+
   - name: dind
     image: docker:dind
     securityContext:
@@ -23,9 +33,22 @@ spec:
     env:
     - name: DOCKER_TLS_CERTDIR
       value: ""
-"""
+    volumeMounts:
+    - name: docker-config
+      mountPath: /etc/docker/daemon.json
+      subPath: daemon.json
+
+  volumes:
+  - name: docker-config
+    configMap:
+      name: docker-daemon-config
+  - name: kubeconfig-secret
+    secret:
+      secretName: kubeconfig-secret
+'''
         }
     }
+
     environment {
         APP_NAME = "cashvista"
         IMAGE_TAG = "latest"
@@ -37,6 +60,7 @@ spec:
         SONAR_HOST_URL = "http://my-sonarqube-sonarqube.sonarqube.svc.cluster.local:9000"
         SONAR_PROJECT = "cashvista" 
     }
+
     stages {
         stage('Build Docker Image') {
             steps {
@@ -49,11 +73,13 @@ spec:
         stage('Login to Docker Registry') {
             steps {
                 container('dind') {
-                    // Credentials for student
-                    sh "docker login nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085 -u student -p Imcc@2025"
+                    sh 'docker --version'
+                    sh 'sleep 10'
+                    sh 'docker login nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085 -u admin -p Changeme@2025'
                 }
             }
         }
+
         stage('Build - Tag - Push Image') {
             steps {
                 container('dind') {
